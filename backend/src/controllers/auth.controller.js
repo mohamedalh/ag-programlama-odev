@@ -7,16 +7,16 @@ export const signup = async (req, res) => {
     const { fullName, email, password } = req.body;
     try {
         if (!fullName || !email || !password) {
-            return res.status(400).json({ message: "All fields are required" });
+            return res.status(400).json({ message: "Tüm alanlar zorunludur" });
         }
 
         if (password.length < 6) {
-            return res.status(400).json({ message: "Password must be at least 6 characters" });
+            return res.status(400).json({ message: "Şifre en az 6 karakter olmalıdır" });
         }
 
         const user = await User.findOne({ email });
 
-        if (user) return res.status(400).json({ message: "Email already exists" });
+        if (user) return res.status(400).json({ message: "E-posta zaten mevcut" });
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -53,12 +53,12 @@ export const login = async (req, res) => {
         const user = await User.findOne({ email });
 
         if (!user) {
-            return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(400).json({ message: "Geçersiz kimlik bilgileri" });
         }
 
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
         if (!isPasswordCorrect) {
-            return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(400).json({ message: "Geçersiz kimlik bilgileri" });
         }
 
         generateToken(user._id, res);
@@ -78,7 +78,7 @@ export const login = async (req, res) => {
 export const logout = (req, res) => {
     try {
         res.cookie("jwt", "", { maxAge: 0 });
-        res.status(200).json({ message: "Logged out successfully" });
+        res.status(200).json({ message: "Başarıyla çıkış yapıldı" });
     } catch (error) {
         console.log("Error in logout controller", error.message);
         res.status(500).json({ message: "Internal Server Error" });
